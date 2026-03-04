@@ -7,8 +7,8 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow
-                factoryClass="pl.line.counter.window.LineCounterWindowFactory"
-                icon="AllIcons.Toolwindows.ToolWindowStatistics"
+                factoryClass="pl.line.counter.LineCounterWindowFactory"
+                icon="/icons/chartHistogram.svg"
                 id="Line Counter"
                 anchor="right"/>
     </extensions>
