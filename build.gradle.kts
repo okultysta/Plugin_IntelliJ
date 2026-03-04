@@ -4,26 +4,14 @@ import org.jetbrains.intellij.platform.gradle.TestFrameworkType
 
 plugins {
     id("java") // Java support
-    alias(libs.plugins.kotlin) // Kotlin support
+    //alias(libs.plugins.kotlin) // Kotlin support
     alias(libs.plugins.intelliJPlatform) // IntelliJ Platform Gradle Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
-    alias(libs.plugins.composeCompiler) // Gradle Compose Compiler Plugin
+    //alias(libs.plugins.composeCompiler) // Gradle Compose Compiler Plugin
 }
 
 group = providers.gradleProperty("pluginGroup").get()
 version = providers.gradleProperty("pluginVersion").get()
-
-kotlin {
-    jvmToolchain(21)
-
-    compilerOptions {
-        freeCompilerArgs.addAll(
-            listOf(
-                "-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
-            )
-        )
-    }
-}
 
 repositories {
     mavenCentral()
@@ -41,20 +29,20 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.opentest4j)
     testImplementation(libs.hamcrest)
-    testImplementation(libs.composeuitest)
-    testImplementation(libs.jewelstandalone)
+//    testImplementation(libs.composeuitest)
+//    testImplementation(libs.jewelstandalone)
     // TODO Remove once [https://youtrack.jetbrains.com/issue/JEWEL-1263] is fixed
-    testRuntimeOnly("net.java.dev.jna:jna-platform:5.17.0")
+//    testRuntimeOnly("net.java.dev.jna:jna-platform:5.17.0")
     // Workaround for running tests on Windows and Linux
     // It provides necessary Skiko runtime native binaries
-    testImplementation(libs.skikoAwtRuntimeAll)
+//    testImplementation(libs.skikoAwtRuntimeAll)
 
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
 
         // Compose support dependencies
-        @Suppress("UnstableApiUsage")
-        composeUI()
+//        @Suppress("UnstableApiUsage")
+//        composeUI()
 
         // Plugin Dependencies. Uses `platformBundledPlugins` property from the gradle.properties file for bundled IntelliJ Platform plugins.
         bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',') })
