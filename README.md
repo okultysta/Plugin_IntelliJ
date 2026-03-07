@@ -5,6 +5,8 @@
 - Jędrzej Bartoszewski 251482
 - Kacper Maziarz 251586
 
+<!-- Plugin description -->
+
 
 ### Opis
 Jest to prosta wtyczka do IntelliJ IDEA  oferująca statystyki ukazane w formie wykresów słupkowych dotyczące pików w projekcie,
@@ -15,6 +17,7 @@ na ten moment:
 - ilości pustych linii
 - ilości plików o danych typach.
 
+<!-- Plugin description end -->
 ### Jak zainstalować?
 
 Należy z pomocą gradle zbudować wersję, so-called "dystrybucyjną", można to zrobić poprzez interfejs graficzny IDE:
