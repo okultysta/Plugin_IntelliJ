@@ -9,7 +9,7 @@ public class Stats {
     private final int blankLines;
 
     public Stats(String fileName, String fileType, int totalLines,
-                     int codeLines, int commentLines, int blankLines) {
+                 int codeLines, int commentLines, int blankLines) {
         this.fileName = fileName;
         this.fileType = fileType;
         this.totalLines = totalLines;

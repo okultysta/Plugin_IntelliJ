@@ -5,12 +5,14 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.UIUtil;
+import com.intellij.util.ui.WrapLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Objects;
 
 
 public class LineCounterWindow {
@@ -53,7 +55,7 @@ public class LineCounterWindow {
 
 
     private JPanel createFilterPanel() {
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel filterPanel = new JPanel(new WrapLayout(FlowLayout.LEFT));
         filterPanel.setBorder(JBUI.Borders.empty(5));
 
         JLabel filterLabel = new JLabel("Pokaż: ");
@@ -98,6 +100,14 @@ public class LineCounterWindow {
         group.add(blankButton);
         filterPanel.add(blankButton);
 
+        JRadioButton fileButton = new JRadioButton("Ilość plików o danym rozszerzeniu", false);
+        fileButton.addActionListener(e -> {
+            currentFilter = "files";
+            updateChart();
+        });
+        group.add(fileButton);
+        filterPanel.add(fileButton);
+
         return filterPanel;
     }
 
@@ -112,25 +122,26 @@ public class LineCounterWindow {
         } else {
             System.out.println("currentStats = null!");
         }
+        chartPanel.revalidate();
+        chartPanel.repaint();
     }
-
 
 
     private void refreshStats() {
-        System.out.println("=== Rozpoczynam liczenie ===");
-        currentStats = counterService.countLinesInProject(project);
+        com.intellij.openapi.application.ApplicationManager.getApplication()
+                .executeOnPooledThread(() -> {
+                    System.out.println("=== Rozpoczynam liczenie ===");
+                    List<Stats> newStats = counterService.countLinesInProject(project);
+                    System.out.println("Znaleziono plików: " + newStats.size());
 
-        System.out.println("Znaleziono plików: " + (currentStats != null ? currentStats.size() : "null"));
-
-        if (currentStats != null && !currentStats.isEmpty()) {
-            System.out.println("Pierwszy plik: " + currentStats.get(0).getFileName());
-        }
-
-        updateChart();
-
-        System.out.println("=== Aktualizacja wysłana ===");
+                    com.intellij.openapi.application.ApplicationManager.getApplication()
+                            .invokeLater(() -> {
+                                currentStats = newStats;
+                                System.out.println(" invokeLater, stats=" + currentStats.size() + " ===");
+                                updateChart();
+                            });
+                });
     }
-
 
 
     private class ChartPanel extends JPanel {
@@ -151,6 +162,9 @@ public class LineCounterWindow {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
 
+            g2.setColor(getBackground());
+            g2.fillRect(0, 0, getWidth(), getHeight());
+
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                     RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -161,24 +175,36 @@ public class LineCounterWindow {
             }
 
             Map<String, Integer> totals = new HashMap<>();
-            for (Stats stat : stats) {
-                String type = stat.getFileType();
-                int value = getValueByFilter(stat, filter);
-                totals.put(type, totals.getOrDefault(type, 0) + value);
+            if (Objects.equals(filter, "files")) {
+                for (Stats stat : stats) {
+                    String type = stat.getFileType();
+                    totals.put(type, totals.getOrDefault(type, 0) + 1);
+                }
+            } else {
+                for (Stats stat : stats) {
+                    String type = stat.getFileType();
+                    int value = getValueByFilter(stat, filter);
+                    totals.put(type, totals.getOrDefault(type, 0) + value);
+                }
             }
 
 
             drawChart(g2, totals);
+            totals.forEach((k, v) -> System.out.println("TOTALS: " + k + " = " + v));
             System.out.println("Koniec malowania komponentu.");
         }
 
 
         private int getValueByFilter(Stats stat, String filter) {
             switch (filter) {
-                case "code": return stat.getCodeLines();
-                case "comments": return stat.getCommentLines();
-                case "blanks": return stat.getBlankLines();
-                default: return stat.getTotalLines();
+                case "code":
+                    return stat.getCodeLines();
+                case "comments":
+                    return stat.getCommentLines();
+                case "blanks":
+                    return stat.getBlankLines();
+                default:
+                    return stat.getTotalLines();
             }
         }
 
@@ -243,7 +269,9 @@ public class LineCounterWindow {
                 case "blanks":
                     return new Color(251, 188, 5);  // żółty
                 case "total":
-                    return new Color(234, 67, 53);  // czerwony
+                    return new Color(234, 67, 53);// czerwony
+                case "files":
+                    return new Color(255, 102, 193); //różowy
                 default:
                     return UIUtil.getLabelForeground();
             }
