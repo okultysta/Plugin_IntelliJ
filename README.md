@@ -17,6 +17,8 @@ na ten moment:
 - ilości pustych linii
 - ilości plików o danych typach.
 
+Film prezentujący ww. działanie jest zawarty w głównym folderze projektu pod nazwą "Film_prezentujący_działanie_Pluginu.mp4".
+
 <!-- Plugin description end -->
 ### Jak zainstalować?
 
